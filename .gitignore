@@ -1,0 +1,5 @@
+.vs/*
+Debug/Launcher.exe
+Debug/Launcher.ilk
+Debug/Launcher.pdb
+Launcher/Debug/*
