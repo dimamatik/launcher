@@ -11,7 +11,7 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 		return READ_CONFIGURATION_ERRORS::VARIANT_OUT_OF_BOUNDS;
 	}
 
-	if (CheckFileExists(iniFile, false))
+	if (CheckFileExists(iniFile, false) == false)
 	{
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_INI_FILE;
 	}
@@ -35,7 +35,7 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_EXE_PATH;
 	}
 
-	if (CheckFileExists(exePath, false))
+	if (CheckFileExists(exePath, false) == false)
 	{
 		delete[] lpAppName;
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_EXE_FILE;
@@ -57,7 +57,7 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_DIRECTORY;
 	}
 
-	if (CheckFileExists(currentWorkingDirectory, true))
+	if (CheckFileExists(currentWorkingDirectory, true) == false)
 	{
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_DIRECTORY;
 	}
@@ -76,7 +76,7 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_STEAM;
 	}
 
-	if (CheckFileExists(steam, false))
+	if (CheckFileExists(steam, false) == false)
 	{
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_STEAM_FILE;
 	}

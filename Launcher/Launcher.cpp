@@ -6,6 +6,7 @@
 
 #include "CommandLineParser.h"
 #include "ConfigurationReader.h"
+#include "ProcessLauncher.h"
 
 const int buferSize = 1024;
 
@@ -45,9 +46,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		return -1;
 	}
-
-	
-
 
 	// All right, we have a variant for launching
 	// Now we are parsing .ini file with options
@@ -107,41 +105,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return -1;
 	}
 	
-	// Launching not from Steam - relaunch with -fromSteam argument
-	if (fromSteam == false)
-	{
-		LPWSTR bufer = new wchar_t[wcslen(steam) + 256];
-		wsprintf(bufer, L"/C \"%s\" -applaunch %d -fromSteam -launch %d", steam, appid, variant);
-		
-		ShellExecute(NULL, L"open", L"cmd.exe", bufer, NULL, SW_HIDE);
-		
-		delete[] bufer;
+	bool result = false;
 
-		return 0;
-	}
-
+	// Launching not from Steam - relaunch with -fromSteam argument and exit
+	if (fromSteam == false) result = LaunchFromSteam(steam, appid, variant);
 	// Now, launch new proccess and wait...
-
-	STARTUPINFO si = { sizeof(STARTUPINFO), 0 };
-	si.cb = sizeof(si);
-	PROCESS_INFORMATION pi = { 0 };
-	
-	if (CreateProcess(exe, cmdLine, NULL, NULL, FALSE, 0, NULL, cwd, &si, &pi)) 
-	{	
-		// wait for wrapped exe to exit
-		WaitForSingleObject(pi.hProcess, INFINITE);
-		// close the process and thread object handles
-		CloseHandle(pi.hThread);
-		CloseHandle(pi.hProcess);
-	}
-	else 
-	{
-		MessageBox(NULL, L"Can not launch process. Unknown error", NULL, MB_OK);
-	}
-	
+	else result = LaunchProcess(exe, cmdLine, cwd);
+		
 	delete[] exe;
 	delete[] cwd;
 	delete[] steam;
-	
-	return 0;
+
+	if (result) return 0;
+	else
+	{
+		if (fromSteam == false) MessageBox(NULL, L"Can not launch from Steam. Unknown error", NULL, MB_OK);
+		else MessageBox(NULL, L"Can not launch child process. Unknown error", NULL, MB_OK);
+		return -1;
+	}
 }
