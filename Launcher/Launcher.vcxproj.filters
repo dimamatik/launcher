@@ -36,6 +36,9 @@
     <ClInclude Include="ProcessLauncher.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="OverlayResolver.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -51,6 +54,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="ProcessLauncher.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayResolver.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

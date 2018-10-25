@@ -10,15 +10,49 @@ enum READ_CONFIGURATION_ERRORS : int
 	NOT_EXIST_EXE_FILE = -7,
 	NOT_EXIST_DIRECTORY = -8,
 	NOT_EXIST_STEAM_FILE = -9,
+	ERROR_GET_REMOVERLAY = -10,
+	ERROR_GET_OVERLAY_FILE = -11,
+};
+class GeneralConfiguration
+{
+	public: LPWSTR steam;
+	public: LPWSTR overlay;
+	public: int appid;
+
+	public: GeneralConfiguration(int buferSize)
+	{
+		steam = new WCHAR[buferSize];
+		overlay = new WCHAR[buferSize];
+	}
+	~GeneralConfiguration()
+	{
+		delete[] steam;
+		delete[] overlay;
+	}
+
+};
+class LaunchConfiguration
+{
+	public: LPWSTR exePath;
+	public: LPWSTR currentWorkingDirectory;
+	public: bool removeOverlay;
+
+	public: LaunchConfiguration(int buferSize)
+	{
+		exePath = new WCHAR[buferSize];
+		currentWorkingDirectory = new WCHAR[buferSize];
+	}
+	~LaunchConfiguration()
+	{
+		delete[] exePath;
+		delete[] currentWorkingDirectory;
+	}
 };
 
-// Read configuration by variant number, return error code (<0) or zero
-int ReadConfiguration(LPCWSTR iniFile, int variant,
-						wchar_t* exePath,
-						wchar_t* currentWorkingDirectory,
-						wchar_t* steam,
-						int* appid,
-						int buferSize);
+// Read general configuration, return error code (<0) or zero
+int ReadGeneralConfiguration(LPWSTR iniFile, GeneralConfiguration* configuration, int buferSize);
+// Read launch configuration by variant number, return error code (<0) or zero
+int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* configuration, int buferSize);
 
 // Check the file or directory is exists
 bool CheckFileExists(LPCWSTR path, bool isDir);

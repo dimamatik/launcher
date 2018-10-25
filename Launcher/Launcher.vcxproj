@@ -150,6 +150,7 @@
     <ClInclude Include="CommandLineParser.h" />
     <ClInclude Include="ConfigurationReader.h" />
     <ClInclude Include="Launcher.h" />
+    <ClInclude Include="OverlayResolver.h" />
     <ClInclude Include="ProcessLauncher.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="CommandLineParser.cpp" />
     <ClCompile Include="ConfigurationReader.cpp" />
     <ClCompile Include="Launcher.cpp" />
+    <ClCompile Include="OverlayResolver.cpp" />
     <ClCompile Include="ProcessLauncher.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

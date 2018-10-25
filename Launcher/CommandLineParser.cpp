@@ -3,7 +3,7 @@
 #include "CommandLineParser.h"
 
 // Process command line arguments, return error code (<0) or zero
-int ParseCommandLine(LPWSTR* argList, int argCount, int* variant, bool* fromSteam)
+int ParseCommandLine(LPWSTR* argList, int argCount, CommandLineArguments* arguments)
 {
 	// faild to parse command line or bad count of elements
 	if (argList == NULL || argCount < 3)
@@ -26,11 +26,13 @@ int ParseCommandLine(LPWSTR* argList, int argCount, int* variant, bool* fromStea
 		return PARSE_COMMAND_LINE_ERRORS::CAN_NOT_PARSE;
 	}
 
-	*variant = pars;
+	arguments->variant = pars;
 
 	index = SearchTheIndex(L"-fromsteam", argList, argCount);
+	arguments->fromSteam = index >= 0;
 
-	*fromSteam = index >= 0;
+	index = SearchTheIndex(L"-fromcmd", argList, argCount);
+	arguments->fromCmd = index >= 0;
 
 	return 0;
 }

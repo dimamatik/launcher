@@ -7,6 +7,7 @@
 #include "CommandLineParser.h"
 #include "ConfigurationReader.h"
 #include "ProcessLauncher.h"
+#include "OverlayResolver.h"
 
 const int buferSize = 1024;
 
@@ -19,15 +20,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	LPWSTR* argList = CommandLineToArgvW(cmdLine, &argCount);
 	
 	// Parse launch variant or get error
-	int variant = 0;
+	CommandLineArguments* arguments = new CommandLineArguments();
+
 	int errorCode = 0;
-	bool fromSteam = false;
-	errorCode = ParseCommandLine(argList, argCount, &variant, &fromSteam);
+	
+	errorCode = ParseCommandLine(argList, argCount, arguments);
 	if (argList != NULL) LocalFree(argList);
 
 	// Errors...
 	if (errorCode < 0)
 	{
+		delete arguments;
+
 		switch (errorCode)
 		{
 		case PARSE_COMMAND_LINE_ERRORS::NOT_ENOUGTH_ARGUMENTS:
@@ -50,23 +54,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// All right, we have a variant for launching
 	// Now we are parsing .ini file with options
 		
-	wchar_t* iniFile = new wchar_t[buferSize];
+	LPWSTR iniFile = new wchar_t[buferSize];
 	GetCurrentDirectory(MAX_PATH, iniFile);
-	wcscat_s(iniFile, 1024, L"\\LauncherConfiguration.ini");
+	wcscat_s(iniFile, buferSize, L"\\LauncherConfiguration.ini");
 
-	wchar_t* exe = new wchar_t[buferSize];
-	wchar_t* cwd = new wchar_t[buferSize];
-	wchar_t* steam = new wchar_t[buferSize];
-	int appid = -1;
+	GeneralConfiguration* generalConfiguration = new GeneralConfiguration(buferSize);
+	LaunchConfiguration* launchConfiguration = new LaunchConfiguration(buferSize);
 
-	errorCode = ReadConfiguration(iniFile, variant, exe, cwd, steam, &appid, 1024);
+	errorCode = ReadGeneralConfiguration(iniFile, generalConfiguration, buferSize);
+	if (errorCode >= 0) errorCode = ReadLaunchConfiguration(iniFile, arguments->variant, launchConfiguration, buferSize);
+
 	delete[] iniFile;
 
 	if (errorCode < 0)
 	{
-		delete[] exe;
-		delete[] cwd;
-		delete[] steam;
+		delete arguments;
+		delete generalConfiguration;
+		delete launchConfiguration;
 
 		switch (errorCode)
 		{
@@ -97,6 +101,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		case READ_CONFIGURATION_ERRORS::NOT_EXIST_STEAM_FILE:
 			MessageBox(NULL, L"Steam.exe does not exist", NULL, MB_OK);
 			break;
+		case READ_CONFIGURATION_ERRORS::ERROR_GET_REMOVERLAY:
+			MessageBox(NULL, L"Can not get variable RemoveOverlay.\n Try RemoveOverlay=0", NULL, MB_OK);
+			break;
+		case READ_CONFIGURATION_ERRORS::ERROR_GET_OVERLAY_FILE:
+			MessageBox(NULL, L"Can not get variable Overlay", NULL, MB_OK);
+			break;
+
 		default:
 			MessageBox(NULL, L"Unknown error while reading configuration file", NULL, MB_OK);
 			break;
@@ -106,21 +117,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	
 	bool result = false;
-
+	
 	// Launching not from Steam - relaunch with -fromSteam argument and exit
-	if (fromSteam == false) result = LaunchFromSteam(steam, appid, variant);
+	if (arguments->fromSteam == false)
+	{
+		result = LaunchFromSteam(generalConfiguration->steam, generalConfiguration->appid, arguments->variant);
+	}
 	// Now, launch new proccess and wait...
-	else result = LaunchProcess(exe, cmdLine, cwd);
-		
-	delete[] exe;
-	delete[] cwd;
-	delete[] steam;
-
-	if (result) return 0;
 	else
 	{
-		if (fromSteam == false) MessageBox(NULL, L"Can not launch from Steam. Unknown error", NULL, MB_OK);
+		result = LaunchProcess(launchConfiguration->exePath, cmdLine, launchConfiguration->currentWorkingDirectory);
+	}
+		
+	delete generalConfiguration;
+	delete launchConfiguration;
+
+	if (result)
+	{
+		delete arguments;
+		return 0;
+	}
+	else
+	{
+		if (arguments->fromSteam == false) MessageBox(NULL, L"Can not launch from Steam. Unknown error", NULL, MB_OK);
 		else MessageBox(NULL, L"Can not launch child process. Unknown error", NULL, MB_OK);
+		delete arguments;
 		return -1;
 	}
 }

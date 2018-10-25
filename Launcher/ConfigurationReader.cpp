@@ -2,9 +2,59 @@
 
 #include "ConfigurationReader.h"
 
-// Read configuration by variant number, return error code (<0) or zero
-int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* currentWorkingDirectory, 
-						wchar_t* steam, int* appid,	int buferSize)
+// Read general configuration, return error code (<0) or zero
+int ReadGeneralConfiguration(LPWSTR iniFile, GeneralConfiguration* configuration, int buferSize)
+{
+	if (CheckFileExists(iniFile, false) == false)
+	{
+		return READ_CONFIGURATION_ERRORS::NOT_EXIST_INI_FILE;
+	}
+	
+	memset(configuration->steam, 0x00, buferSize);
+
+	int nums = GetPrivateProfileString(L"General",
+		L"Steam",
+		NULL,
+		configuration->steam,
+		buferSize,
+		iniFile);
+
+	if (nums <= 0)
+	{
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_STEAM;
+	}
+
+	if (CheckFileExists(configuration->steam, false) == false)
+	{
+		return READ_CONFIGURATION_ERRORS::NOT_EXIST_STEAM_FILE;
+	}
+
+	int apd = GetPrivateProfileInt(L"General", L"AppID", 0, iniFile);
+
+	if (apd <= 0)
+	{
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_APPID;
+	}
+
+	configuration->appid = apd;
+
+	nums = GetPrivateProfileString(L"General",
+		L"Overlay",
+		NULL,
+		configuration->overlay,
+		buferSize,
+		iniFile);
+
+	if (nums <= 0)
+	{
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_OVERLAY_FILE;
+	}
+
+	return 0;
+}
+
+// Read launch configuration by variant number, return error code (<0) or zero
+int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* configuration, int buferSize)
 {
 	if (variant < 0 || variant > 1024)
 	{
@@ -19,15 +69,15 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 	wchar_t* lpAppName = new wchar_t[4];
 	wsprintf(lpAppName, L"%d", variant);
 
-	memset(exePath, 0x00, buferSize);
+	memset(configuration->exePath, 0x00, buferSize);
 
 	DWORD nums;
-	nums = GetPrivateProfileString( lpAppName,
-									L"FullPath", 
-									NULL, 
-									exePath,
-									buferSize,
-									iniFile);
+	nums = GetPrivateProfileString(lpAppName,
+		L"FullPath",
+		NULL,
+		configuration->exePath,
+		buferSize,
+		iniFile);
 
 	if (nums <= 0)
 	{
@@ -35,63 +85,49 @@ int ReadConfiguration(LPCWSTR iniFile, int variant, wchar_t* exePath, wchar_t* c
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_EXE_PATH;
 	}
 
-	if (CheckFileExists(exePath, false) == false)
+	if (CheckFileExists(configuration->exePath, false) == false)
 	{
 		delete[] lpAppName;
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_EXE_FILE;
 	}
 
-	memset(currentWorkingDirectory, 0x00, buferSize);
+	memset(configuration->currentWorkingDirectory, 0x00, buferSize);
 
 	nums = GetPrivateProfileString(lpAppName,
 		L"WorkingDirectory",
 		NULL,
-		currentWorkingDirectory,
+		configuration->currentWorkingDirectory,
 		buferSize,
+		iniFile);
+
+	if (nums <= 0)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_DIRECTORY;
+	}
+
+	int ovr = GetPrivateProfileInt(lpAppName,
+		L"RemoveOverlay",
+		-1,
 		iniFile);
 
 	delete[] lpAppName;
 
-	if (nums <= 0)
+	if (ovr < 0 || ovr > 1)
 	{
-		return READ_CONFIGURATION_ERRORS::ERROR_GET_DIRECTORY;
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_REMOVERLAY;
 	}
 
-	if (CheckFileExists(currentWorkingDirectory, true) == false)
+	configuration->removeOverlay = ovr == 1;
+
+	if (CheckFileExists(configuration->currentWorkingDirectory, true) == false)
 	{
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_DIRECTORY;
 	}
 
-	memset(steam, 0x00, buferSize);
-
-	nums = GetPrivateProfileString(L"General",
-		L"Steam",
-		NULL,
-		steam,
-		buferSize,
-		iniFile);
-
-	if (nums <= 0)
-	{
-		return READ_CONFIGURATION_ERRORS::ERROR_GET_STEAM;
-	}
-
-	if (CheckFileExists(steam, false) == false)
-	{
-		return READ_CONFIGURATION_ERRORS::NOT_EXIST_STEAM_FILE;
-	}
-
-	int apd = GetPrivateProfileInt(L"General", L"AppID", 0, iniFile);
-
-	if (apd <= 0)
-	{
-		return READ_CONFIGURATION_ERRORS::ERROR_GET_APPID;
-	}
-
-	*appid = apd;
-
 	return 0;
 }
+
 
 // Check the file or directory is exists
 bool CheckFileExists(LPCWSTR path, bool isDir)
