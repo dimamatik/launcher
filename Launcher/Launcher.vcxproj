@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>SierraLauncher</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="CommandLineParser.h" />
     <ClInclude Include="ConfigurationReader.h" />
+    <ClInclude Include="ErrorMessenger.h" />
     <ClInclude Include="Launcher.h" />
     <ClInclude Include="OverlayResolver.h" />
     <ClInclude Include="ProcessLauncher.h" />
@@ -159,6 +161,7 @@
   <ItemGroup>
     <ClCompile Include="CommandLineParser.cpp" />
     <ClCompile Include="ConfigurationReader.cpp" />
+    <ClCompile Include="ErrorMessenger.cpp" />
     <ClCompile Include="Launcher.cpp" />
     <ClCompile Include="OverlayResolver.cpp" />
     <ClCompile Include="ProcessLauncher.cpp" />

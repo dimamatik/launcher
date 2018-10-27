@@ -53,6 +53,8 @@ class LaunchConfiguration
 int ReadGeneralConfiguration(LPWSTR iniFile, GeneralConfiguration* configuration, int buferSize);
 // Read launch configuration by variant number, return error code (<0) or zero
 int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* configuration, int buferSize);
+// Launch not from Steam and add -fromCmd argument
+bool LaunchIndependent(int variant, int buferSize);
 
 // Check the file or directory is exists
 bool CheckFileExists(LPCWSTR path, bool isDir);

@@ -9,67 +9,34 @@ bool RenameOverlay(LPWSTR overlay, int buferSize)
 {
 	if (CheckFileExists(overlay, false) == false) return false;
 
-	// Can not use "standart" c++ functions, only by shell...
-
-	LPWSTR bufer = new wchar_t[buferSize];
-	LPWSTR overcop = new wchar_t[buferSize];
-
+	LPWSTR overcop = new WCHAR[buferSize];
 	wsprintf(overcop, L"%s.copy", overlay);
-	wsprintf(bufer, L"/K \"copy /Y \"%s\" \"%s\"\"", overlay, overcop);
 
+	BOOL result = MoveFileEx(overlay, overcop,
+		MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	HINSTANCE result = ShellExecute(NULL, L"open", L"cmd.exe", bufer, NULL, SW_NORMAL);
+	result = result && CheckFileExists(overcop, false) && CheckFileExists(overlay, false) == false;
 
-	if ((int)result <= 32 || CheckFileExists(overcop, false) == false)
-	{
-		delete[] bufer;
-		delete[] overcop;
-		return false;
-	}
 	delete[] overcop;
 
-	wsprintf(bufer, L"/K \"del /F /Q \"%s\" \"", overlay);
-
-	result = ShellExecute(NULL, L"open", L"cmd.exe", bufer, NULL, SW_NORMAL);
-	delete[] bufer;
-
-	if ((int)result <= 32)
-	{
-		return false;
-	}
-
-	if (CheckFileExists(overlay, false)) return false;
-	else return true;
+	return result;
 }
 
 // Restore overlay file, if a copy exists
 bool RestoreOverlay(LPWSTR overlay, int buferSize)
 {
-	if (CheckFileExists(overlay, false)) return false;
+	// do not need to restore
+	if (CheckFileExists(overlay, false)) return true;
 
-	wchar_t* overcop = new wchar_t[buferSize + 256];
+	LPWSTR overcop = new WCHAR[buferSize];
 	wsprintf(overcop, L"%s.copy", overlay);
 
-	if (CheckFileExists(overcop, false) == false)
-	{
-		delete[] overcop;
-		return false;
-	}
+	BOOL result = MoveFileEx(overcop, overlay,
+		MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 
-	if (CopyFile(overcop, overlay, false) == false || CheckFileExists(overlay, false) == false)
-	{
-		delete[] overcop;
-		return false;
-	}
+	result = result && CheckFileExists(overlay , false) && CheckFileExists(overcop, false) == false;
 
-	if (DeleteFile(overcop) == false)
-	{
-		delete[] overcop;
-		return false;
-	}
-	else
-	{
-		delete[] overcop;
-		return true;
-	}
+	delete[] overcop;
+
+	return result;
 }

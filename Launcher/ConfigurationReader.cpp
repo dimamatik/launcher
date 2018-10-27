@@ -66,7 +66,7 @@ int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* co
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_INI_FILE;
 	}
 
-	wchar_t* lpAppName = new wchar_t[4];
+	LPWSTR lpAppName = new WCHAR[4];
 	wsprintf(lpAppName, L"%d", variant);
 
 	memset(configuration->exePath, 0x00, buferSize);
