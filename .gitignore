@@ -1,5 +1,6 @@
 .vs/*
-Debug/Launcher.exe
-Debug/Launcher.ilk
-Debug/Launcher.pdb
+Debug/*.exe
+Debug/*.ilk
+Debug/*.pdb
 Launcher/Debug/*
+Launcher.aps
