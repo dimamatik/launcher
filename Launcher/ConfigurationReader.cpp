@@ -69,6 +69,7 @@ int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* co
 	LPWSTR lpAppName = new WCHAR[4];
 	wsprintf(lpAppName, L"%d", variant);
 
+#pragma region EXEPATH
 	memset(configuration->exePath, 0x00, buferSize);
 
 	DWORD nums;
@@ -90,7 +91,8 @@ int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* co
 		delete[] lpAppName;
 		return READ_CONFIGURATION_ERRORS::NOT_EXIST_EXE_FILE;
 	}
-
+#pragma endregion
+#pragma region CWD
 	memset(configuration->currentWorkingDirectory, 0x00, buferSize);
 
 	nums = GetPrivateProfileString(lpAppName,
@@ -106,25 +108,92 @@ int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* co
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_DIRECTORY;
 	}
 
+	if (CheckFileExists(configuration->currentWorkingDirectory, true) == false)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::NOT_EXIST_DIRECTORY;
+	}
+#pragma endregion
+#pragma region OVERLAY
 	int ovr = GetPrivateProfileInt(lpAppName,
 		L"RemoveOverlay",
 		-1,
 		iniFile);
 
-	delete[] lpAppName;
-
 	if (ovr < 0 || ovr > 1)
 	{
+		delete[] lpAppName;
 		return READ_CONFIGURATION_ERRORS::ERROR_GET_REMOVERLAY;
 	}
 
 	configuration->removeOverlay = ovr == 1;
+#pragma endregion
+#pragma region COUNT
+	int cou = GetPrivateProfileInt(lpAppName,
+		L"Count",
+		-1,
+		iniFile);
 
-	if (CheckFileExists(configuration->currentWorkingDirectory, true) == false)
+	if (cou < 0 || cou > 1024)
 	{
-		return READ_CONFIGURATION_ERRORS::NOT_EXIST_DIRECTORY;
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::SAVE_COUNT_OUT_OF_BOUNDS;
 	}
 
+	configuration->backupCount = cou;
+
+	if (cou == 0) // without backups
+	{
+		delete[] lpAppName;
+		return 0;
+	}
+#pragma endregion
+#pragma region SAVE
+	memset(configuration->savePath, 0x00, buferSize);
+
+	nums = GetPrivateProfileString(lpAppName,
+		L"Save",
+		NULL,
+		configuration->savePath,
+		buferSize,
+		iniFile);
+
+	if (nums <= 0)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_SAVE_DIRECTORY;
+	}
+
+	if (CheckFileExists(configuration->savePath, true) == false)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::NOT_EXIST_SAVE_DIRECTORY;
+	}
+#pragma endregion
+#pragma region BACKUP
+	memset(configuration->backupPath, 0x00, buferSize);
+
+	nums = GetPrivateProfileString(lpAppName,
+		L"Backup",
+		NULL,
+		configuration->backupPath,
+		buferSize,
+		iniFile);
+
+	if (nums <= 0)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::ERROR_GET_BACKUP_DIRECTORY;
+	}
+
+	if (CheckFileExists(configuration->backupPath, true) == false)
+	{
+		delete[] lpAppName;
+		return READ_CONFIGURATION_ERRORS::NOT_EXIST_BACKUP_DIRECTORY;
+	}
+#pragma endregion
+
+	delete[] lpAppName;
 	return 0;
 }
 

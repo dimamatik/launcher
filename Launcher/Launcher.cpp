@@ -9,6 +9,7 @@
 #include "ProcessLauncher.h"
 #include "OverlayResolver.h"
 #include "ErrorMessenger.h"
+#include "SaveBackuper.h"
 
 const int buferSize = 1024;
 
@@ -57,6 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	bool result = false;
 	bool resultOverlay = true;
+	bool backup = true;
 
 	if (launchConfiguration->removeOverlay && CheckFileExists(generalConfiguration->overlay, false))
 	{
@@ -68,6 +70,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// remove overlay file and launch from Steam
 		else
 		{
+			// make a backup
+			if (launchConfiguration->backupCount > 0)
+			{
+				backup = Backup(launchConfiguration->savePath, launchConfiguration->backupPath, launchConfiguration->backupCount, buferSize);
+			}
 			// pause, wait closing and free overlay
 			Sleep(1500);
 			resultOverlay = RenameOverlay(generalConfiguration->overlay, buferSize);
@@ -85,16 +92,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Now, launch new proccess and wait...
 	else
 	{
+		// make a backup
+		if (launchConfiguration->backupCount > 0)
+		{
+			backup = Backup(launchConfiguration->savePath, launchConfiguration->backupPath, launchConfiguration->backupCount, buferSize);
+		}
 		result = LaunchProcess(launchConfiguration->exePath, cmdLine, launchConfiguration->currentWorkingDirectory);
 	}
 		
 	delete generalConfiguration;
 	delete launchConfiguration;
 
+	if (backup == false)
+	{
+		MessageBox(NULL, L"Can not create save backup", NULL, MB_OK);
+	}
+
 	if (result && resultOverlay)
 	{
 		delete arguments;
-		return 0;
+		return backup ? 0 : -1;
 	}
 	else
 	{

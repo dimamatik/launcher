@@ -65,6 +65,21 @@ bool CheckReadConfigurationError(int errorCode)
 	case READ_CONFIGURATION_ERRORS::ERROR_GET_OVERLAY_FILE:
 		MessageBox(NULL, L"Can not get variable Overlay", NULL, MB_OK);
 		break;
+	case READ_CONFIGURATION_ERRORS::SAVE_COUNT_OUT_OF_BOUNDS:
+		MessageBox(NULL, L"Count of backups <0 or >1024.\n Try Count=0 without backups", NULL, MB_OK);
+		break;
+	case READ_CONFIGURATION_ERRORS::NOT_EXIST_SAVE_DIRECTORY:
+		MessageBox(NULL, L"Save directory does not exist", NULL, MB_OK);
+		break;
+	case READ_CONFIGURATION_ERRORS::NOT_EXIST_BACKUP_DIRECTORY:
+		MessageBox(NULL, L"Directory for backups does not exist", NULL, MB_OK);
+		break;
+	case READ_CONFIGURATION_ERRORS::ERROR_GET_SAVE_DIRECTORY:
+		MessageBox(NULL, L"Can not get variable Save", NULL, MB_OK);
+		break;
+	case READ_CONFIGURATION_ERRORS::ERROR_GET_BACKUP_DIRECTORY:
+		MessageBox(NULL, L"Can not get variable Backup", NULL, MB_OK);
+		break;
 
 	default:
 		MessageBox(NULL, L"Unknown error while reading configuration file", NULL, MB_OK);

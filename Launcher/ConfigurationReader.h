@@ -12,6 +12,11 @@ enum READ_CONFIGURATION_ERRORS : int
 	NOT_EXIST_STEAM_FILE = -9,
 	ERROR_GET_REMOVERLAY = -10,
 	ERROR_GET_OVERLAY_FILE = -11,
+	SAVE_COUNT_OUT_OF_BOUNDS = -12,
+	NOT_EXIST_SAVE_DIRECTORY = -13,
+	NOT_EXIST_BACKUP_DIRECTORY = -14,
+	ERROR_GET_SAVE_DIRECTORY = -15,
+	ERROR_GET_BACKUP_DIRECTORY = -16,
 };
 class GeneralConfiguration
 {
@@ -37,15 +42,23 @@ class LaunchConfiguration
 	public: LPWSTR currentWorkingDirectory;
 	public: bool removeOverlay;
 
+	public: LPWSTR savePath;
+	public: LPWSTR backupPath;
+	public: int backupCount;
+
 	public: LaunchConfiguration(int buferSize)
 	{
 		exePath = new WCHAR[buferSize];
 		currentWorkingDirectory = new WCHAR[buferSize];
+		savePath = new WCHAR[buferSize];
+		backupPath = new WCHAR[buferSize];
 	}
 	~LaunchConfiguration()
 	{
 		delete[] exePath;
 		delete[] currentWorkingDirectory;
+		delete[] savePath;
+		delete[] backupPath;
 	}
 };
 
@@ -53,8 +66,6 @@ class LaunchConfiguration
 int ReadGeneralConfiguration(LPWSTR iniFile, GeneralConfiguration* configuration, int buferSize);
 // Read launch configuration by variant number, return error code (<0) or zero
 int ReadLaunchConfiguration(LPWSTR iniFile, int variant, LaunchConfiguration* configuration, int buferSize);
-// Launch not from Steam and add -fromCmd argument
-bool LaunchIndependent(int variant, int buferSize);
 
 // Check the file or directory is exists
 bool CheckFileExists(LPCWSTR path, bool isDir);

@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>SierraLauncher</TargetName>
+    <TargetName>Terraria</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -155,6 +155,7 @@
     <ClInclude Include="OverlayResolver.h" />
     <ClInclude Include="ProcessLauncher.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SaveBackuper.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClCompile Include="Launcher.cpp" />
     <ClCompile Include="OverlayResolver.cpp" />
     <ClCompile Include="ProcessLauncher.cpp" />
+    <ClCompile Include="SaveBackuper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
