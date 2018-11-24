@@ -75,6 +75,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			{
 				backup = Backup(launchConfiguration->savePath, launchConfiguration->backupPath, launchConfiguration->backupCount, buferSize);
 			}
+			if (backup == false)
+			{
+				MessageBox(NULL, L"Can not create save backup", NULL, MB_OK);
+			}
 			// pause, wait closing and free overlay
 			Sleep(1500);
 			resultOverlay = RenameOverlay(generalConfiguration->overlay, buferSize);
@@ -97,16 +101,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			backup = Backup(launchConfiguration->savePath, launchConfiguration->backupPath, launchConfiguration->backupCount, buferSize);
 		}
+		if (backup == false)
+		{
+			MessageBox(NULL, L"Can not create save backup", NULL, MB_OK);
+		}
 		result = LaunchProcess(launchConfiguration->exePath, cmdLine, launchConfiguration->currentWorkingDirectory);
 	}
 		
 	delete generalConfiguration;
 	delete launchConfiguration;
-
-	if (backup == false)
-	{
-		MessageBox(NULL, L"Can not create save backup", NULL, MB_OK);
-	}
 
 	if (result && resultOverlay)
 	{
