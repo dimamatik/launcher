@@ -3,4 +3,7 @@ Debug/*.exe
 Debug/*.ilk
 Debug/*.pdb
 Launcher/Debug/*
+Launcher/Release/*
+Launcher/x64/*
 Launcher.aps
+x64/*
